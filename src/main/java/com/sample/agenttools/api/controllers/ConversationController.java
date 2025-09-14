@@ -4,6 +4,8 @@ import com.sample.agenttools.api.model.Conversation;
 import com.sample.agenttools.api.model.ConversationForUpdate;
 import com.sample.agenttools.api.model.ConversationForInsert;
 import com.sample.agenttools.services.ConversationService;
+import com.sample.agenttools.services.MessageService;
+import com.sample.agenttools.services.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +19,14 @@ import java.util.List;
 @RequestMapping("/conversation")
 public class ConversationController {
     private final ConversationService conversationService;
+    private final MessageService messageService;
+    private final ChatService chatService;
 
     @Autowired
-    public ConversationController(ConversationService conversationService) {
+    public ConversationController(ConversationService conversationService, MessageService messageService, ChatService chatService) {
         this.conversationService = conversationService;
+        this.messageService = messageService;
+        this.chatService = chatService;
     }
 
     @Operation(summary = "Get all conversations", description = "Returns a list of all conversations.")
@@ -56,5 +62,19 @@ public class ConversationController {
                     return ResponseEntity.ok(updated);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @Operation(summary = "Get messages for a conversation", description = "Returns all messages for a given conversation ID.")
+    @GetMapping("/{conversationid}/messages")
+    public ResponseEntity<List<com.sample.agenttools.api.model.Message>> getMessagesForConversation(@PathVariable String conversationid) {
+        List<com.sample.agenttools.api.model.Message> messages = messageService.getMessagesByConversationId(conversationid);
+        return ResponseEntity.ok(messages);
+    }
+
+    @Operation(summary = "Add a user message to a conversation", description = "Inserts a new user message for the given conversation ID.")
+    @PostMapping("/{conversationid}/messages")
+    public ResponseEntity<Void> addUserMessageToConversation(@PathVariable String conversationid, @RequestBody com.sample.agenttools.api.model.MessageForInsert messageForInsert) {
+        messageService.addUserMessage(conversationid, messageForInsert);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

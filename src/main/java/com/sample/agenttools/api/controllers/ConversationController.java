@@ -71,10 +71,15 @@ public class ConversationController {
         return ResponseEntity.ok(messages);
     }
 
-    @Operation(summary = "Add a user message to a conversation", description = "Inserts a new user message for the given conversation ID.")
+    @Operation(summary = "Add a user message to a conversation", description = "Inserts a new user message for the given conversation ID and returns the assistant's response.")
     @PostMapping("/{conversationid}/messages")
-    public ResponseEntity<Void> addUserMessageToConversation(@PathVariable String conversationid, @RequestBody com.sample.agenttools.api.model.MessageForInsert messageForInsert) {
+    public ResponseEntity<String> addUserMessageToConversation(@PathVariable String conversationid, @RequestBody com.sample.agenttools.api.model.MessageForInsert messageForInsert) {
+        var history = messageService.getMessagesByConversationId(conversationid);
         messageService.addUserMessage(conversationid, messageForInsert);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+
+        String assistantResponse = chatService.getChatCompletion(conversationid, messageForInsert.content(), history);
+        messageService.addAssistantMessage(conversationid, new com.sample.agenttools.api.model.MessageForInsert(assistantResponse));
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(assistantResponse);
     }
 }

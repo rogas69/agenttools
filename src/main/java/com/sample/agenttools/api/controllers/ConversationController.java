@@ -3,9 +3,11 @@ package com.sample.agenttools.api.controllers;
 import com.sample.agenttools.api.model.Conversation;
 import com.sample.agenttools.api.model.ConversationForUpdate;
 import com.sample.agenttools.api.model.ConversationForInsert;
+import com.sample.agenttools.api.model.MessageForInsert;
 import com.sample.agenttools.services.ConversationService;
 import com.sample.agenttools.services.MessageService;
 import com.sample.agenttools.services.ChatService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,11 +75,14 @@ public class ConversationController {
 
     @Operation(summary = "Add a user message to a conversation", description = "Inserts a new user message for the given conversation ID and returns the assistant's response.")
     @PostMapping("/{conversationid}/messages")
-    public ResponseEntity<String> addUserMessageToConversation(@PathVariable String conversationid, @RequestBody com.sample.agenttools.api.model.MessageForInsert messageForInsert) {
+    public ResponseEntity<String> addUserMessageToConversation(
+            @PathVariable String conversationid,
+            @RequestBody MessageForInsert messageForInsert,
+            @RequestParam(name = "call-tools", required = false, defaultValue = "true") Boolean callTools) {
         var history = messageService.getMessagesByConversationId(conversationid);
         messageService.addUserMessage(conversationid, messageForInsert);
 
-        String assistantResponse = chatService.getChatCompletion(conversationid, messageForInsert.content(), history);
+        String assistantResponse = chatService.getChatCompletion(conversationid, messageForInsert.content(), history, callTools);
         messageService.addAssistantMessage(conversationid, new com.sample.agenttools.api.model.MessageForInsert(assistantResponse));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(assistantResponse);

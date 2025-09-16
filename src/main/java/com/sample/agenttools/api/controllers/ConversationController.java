@@ -15,8 +15,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 @Tag(name = "Conversation API", description = "Endpoints for managing conversations")
+@Slf4j
 @RestController
 @RequestMapping("/conversation")
 public class ConversationController {
@@ -86,5 +88,13 @@ public class ConversationController {
         messageService.addAssistantMessage(conversationid, new com.sample.agenttools.api.model.MessageForInsert(assistantResponse));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(assistantResponse);
+    }
+
+    @Operation(summary = "Clear all messages in a conversation", description = "Removes all messages for the given conversation ID. This resets the chat memory, allowing for easier testing.")
+    @PutMapping("/{conversationid}/clear")
+    public ResponseEntity<Void> clearConversationMessages(@PathVariable String conversationid) {
+        log.warn("Clearing all messages for conversationId={}", conversationid);
+        messageService.deleteMessagesByConversationId(conversationid);
+        return ResponseEntity.noContent().build();
     }
 }

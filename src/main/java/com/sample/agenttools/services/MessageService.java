@@ -68,4 +68,11 @@ public class MessageService {
     public void addSystemMessage(String conversationid, MessageForInsert messageForInsert) {
         addRoleMessage(conversationid, messageForInsert, "system");
     }
+
+    public void deleteMessagesByConversationId(String conversationid) {
+        var messages = getMessagesByConversationId(conversationid);
+        for (Message message : messages) {
+            messageRepository.deleteById(message.getMessageid());
+        }
+    }
 }

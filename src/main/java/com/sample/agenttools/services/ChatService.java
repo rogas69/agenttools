@@ -7,6 +7,7 @@ import com.sample.agenttools.tools.DateTimeTools;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.model.tool.ToolCallingChatOptions;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -57,19 +58,27 @@ public class ChatService {
 
     public String getChatCompletion(String conversationId, String userPrompt, List<Message> history, Boolean callTools) {
         log.info("Generating chat completion for conversationId={}, userPrompt='{}', callTools={}", conversationId, userPrompt, callTools);
+        var systemMessage = new org.springframework.ai.chat.messages.SystemMessage(
+                "You are a helpful AI assistant. " +
+                        "Use the provided tools to answer user questions when appropriate. " +
+                        "Since the questions can be related to date and time ranges, " +
+                        "you must always ensure that you have the current date and time. "
+        );
+
         List<org.springframework.ai.chat.messages.Message> chatHistory = toChatHistory(history);
+        chatHistory.add(0, systemMessage);
         log.debug("Chat history size: {}", chatHistory.size());
         chatHistory.add(new UserMessage(userPrompt));
         int maxTokens = openAiConfig.getChat().getOptions().getMaxTokens();
 
         ToolCallback[] dateTimeTools = ToolCallbacks.from(new DateTimeTools());
 
+
         var options = ToolCallingChatOptions
                 .builder()
                 .toolCallbacks(dateTimeTools)
                 .maxTokens(maxTokens)
                 .build();
-
 
         var prompt = new Prompt(chatHistory, options);
         var response = openAiChatModel.call(prompt);

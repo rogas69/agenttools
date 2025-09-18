@@ -4,7 +4,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 #don't store the databases in the project.
+
 src/main/resources/data/
+src/main/resources/data/sakila.mv.db
 
 ### STS ###
 .apt_generated

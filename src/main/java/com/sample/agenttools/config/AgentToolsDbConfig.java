@@ -18,7 +18,7 @@ import java.util.HashMap;
 @Configuration
 @EnableJpaRepositories(
     basePackages = "com.sample.agenttools.data.operation",
-    entityManagerFactoryRef = "oper
+    entityManagerFactoryRef = "operationEntityManager",
     transactionManagerRef = "operationTransactionManager"
 )
 public class AgentToolsDbConfig {

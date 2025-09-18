@@ -1,4 +1,4 @@
-package com.sample.agenttools.api.model;
+package com.sample.agenttools.api.model.operation;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

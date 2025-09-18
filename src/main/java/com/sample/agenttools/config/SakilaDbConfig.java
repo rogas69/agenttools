@@ -9,7 +9,7 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import javax.sql.DataSource;
 
 @Configuration
-public class SakilaDataSourceConfig {
+public class SakilaDbConfig {
 
     @Bean(name = "sakilaDataSource")
     @ConfigurationProperties(prefix = "spring.sakila-datasource")

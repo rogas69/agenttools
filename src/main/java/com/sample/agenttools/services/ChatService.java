@@ -1,6 +1,6 @@
 package com.sample.agenttools.services;
 
-import com.sample.agenttools.api.model.Message;
+import com.sample.agenttools.api.model.operation.Message;
 import com.sample.agenttools.config.OpenAiConfig;
 import com.sample.agenttools.services.MessageService;
 import com.sample.agenttools.tools.DateTimeTools;

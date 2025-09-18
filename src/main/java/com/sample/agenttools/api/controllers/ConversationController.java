@@ -1,9 +1,9 @@
 package com.sample.agenttools.api.controllers;
 
-import com.sample.agenttools.api.model.Conversation;
-import com.sample.agenttools.api.model.ConversationForUpdate;
-import com.sample.agenttools.api.model.ConversationForInsert;
-import com.sample.agenttools.api.model.MessageForInsert;
+import com.sample.agenttools.api.model.operation.Conversation;
+import com.sample.agenttools.api.model.operation.ConversationForUpdate;
+import com.sample.agenttools.api.model.operation.ConversationForInsert;
+import com.sample.agenttools.api.model.operation.MessageForInsert;
 import com.sample.agenttools.services.ConversationService;
 import com.sample.agenttools.services.MessageService;
 import com.sample.agenttools.services.ChatService;
@@ -70,8 +70,8 @@ public class ConversationController {
 
     @Operation(summary = "Get messages for a conversation", description = "Returns all messages for a given conversation ID.")
     @GetMapping("/{conversationid}/messages")
-    public ResponseEntity<List<com.sample.agenttools.api.model.Message>> getMessagesForConversation(@PathVariable String conversationid) {
-        List<com.sample.agenttools.api.model.Message> messages = messageService.getMessagesByConversationId(conversationid);
+    public ResponseEntity<List<com.sample.agenttools.api.model.operation.Message>> getMessagesForConversation(@PathVariable String conversationid) {
+        var messages = messageService.getMessagesByConversationId(conversationid);
         return ResponseEntity.ok(messages);
     }
 
@@ -85,7 +85,7 @@ public class ConversationController {
         messageService.addUserMessage(conversationid, messageForInsert);
 
         String assistantResponse = chatService.getChatCompletion(conversationid, messageForInsert.content(), history, callTools);
-        messageService.addAssistantMessage(conversationid, new com.sample.agenttools.api.model.MessageForInsert(assistantResponse));
+        messageService.addAssistantMessage(conversationid, new MessageForInsert(assistantResponse));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(assistantResponse);
     }

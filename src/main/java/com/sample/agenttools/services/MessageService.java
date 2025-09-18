@@ -1,8 +1,8 @@
 package com.sample.agenttools.services;
 
-import com.sample.agenttools.api.model.Message;
-import com.sample.agenttools.api.model.MessageForInsert;
-import com.sample.agenttools.data.MessageRepository;
+import com.sample.agenttools.api.model.operation.Message;
+import com.sample.agenttools.api.model.operation.MessageForInsert;
+import com.sample.agenttools.data.operation.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

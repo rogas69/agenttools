@@ -1,7 +1,7 @@
 package com.sample.agenttools.services;
 
-import com.sample.agenttools.api.model.Conversation;
-import com.sample.agenttools.data.ConversationRepository;
+import com.sample.agenttools.api.model.operation.Conversation;
+import com.sample.agenttools.data.operation.ConversationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

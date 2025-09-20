@@ -21,6 +21,13 @@ public class GlobalExceptionHandler {
                 .body("An unexpected error occurred");
     }
 
+    @ExceptionHandler(DataNotFoundException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<String> handleDataNotFoundException(DataNotFoundException ex) {
+        log.warn("Data not found: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
     // You can add more specific exception handlers here if needed
 }
-

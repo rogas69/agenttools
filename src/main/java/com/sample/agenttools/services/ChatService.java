@@ -2,20 +2,18 @@ package com.sample.agenttools.services;
 
 import com.sample.agenttools.api.model.operation.Message;
 import com.sample.agenttools.config.OpenAiConfig;
-import com.sample.agenttools.services.MessageService;
+import com.sample.agenttools.services.operation.MessageService;
 import com.sample.agenttools.tools.DateTimeTools;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.model.tool.ToolCallingChatOptions;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.support.ToolCallbacks;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.context.ApplicationContext;
-import org.springframework.ai.tool.annotation.Tool;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,16 +25,19 @@ import java.util.stream.Collectors;
 @Service
 public class ChatService {
     private final OpenAiChatModel openAiChatModel;
+    private final ChatClient.Builder chatClientBuilder;
     private final MessageService messageService;
     private final OpenAiConfig openAiConfig;
     private final ApplicationContext applicationContext;
 
     @Autowired
     public ChatService(OpenAiChatModel openAiChatModel,
+                       ChatClient.Builder chatClientBuilder,
                        MessageService messageService,
                        OpenAiConfig openAiConfig,
                        ApplicationContext applicationContext) {
         this.openAiChatModel = openAiChatModel;
+        this.chatClientBuilder = chatClientBuilder;
         this.messageService = messageService;
         this.openAiConfig = openAiConfig;
         this.applicationContext = applicationContext;
@@ -73,7 +74,6 @@ public class ChatService {
 
         ToolCallback[] dateTimeTools = ToolCallbacks.from(new DateTimeTools());
 
-
         var options = ToolCallingChatOptions
                 .builder()
                 .toolCallbacks(dateTimeTools)
@@ -81,8 +81,12 @@ public class ChatService {
                 .build();
 
         var prompt = new Prompt(chatHistory, options);
-        var response = openAiChatModel.call(prompt);
-        String assistantResponse = response.getResult().getOutput().getText();
+
+        var chatClient = chatClientBuilder
+                .build();
+        var response = chatClient.prompt(prompt).call();
+        String assistantResponse = response.content();
+
 
         log.info("Assistant response: {}", assistantResponse);
         return assistantResponse;

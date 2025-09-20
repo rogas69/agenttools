@@ -1,4 +1,4 @@
-package com.sample.agenttools.services;
+package com.sample.agenttools.services.operation;
 
 import com.sample.agenttools.api.model.operation.Message;
 import com.sample.agenttools.api.model.operation.MessageForInsert;

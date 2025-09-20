@@ -4,8 +4,8 @@ import com.sample.agenttools.api.model.operation.Conversation;
 import com.sample.agenttools.api.model.operation.ConversationForUpdate;
 import com.sample.agenttools.api.model.operation.ConversationForInsert;
 import com.sample.agenttools.api.model.operation.MessageForInsert;
-import com.sample.agenttools.services.ConversationService;
-import com.sample.agenttools.services.MessageService;
+import com.sample.agenttools.services.operation.ConversationService;
+import com.sample.agenttools.services.operation.MessageService;
 import com.sample.agenttools.services.ChatService;
 
 import io.swagger.v3.oas.annotations.Operation;

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Prompt Manager</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; }
+        label { font-weight: bold; }
+        textarea, input[type=text] { width: 100%; margin-bottom: 1em; }
+        .prompt-list { margin-top: 2em; }
+        .prompt-item { border-bottom: 1px solid #ccc; padding: 1em 0; }
+        .actions button { margin-right: 0.5em; }
+    </style>
+</head>
+<body>
+    <h1>Prompt Manager</h1>
+    <h2>Create New Prompt</h2>
+    <form id="createForm">
+        <label for="id">Prompt ID:</label><br>
+        <input type="text" id="id" required><br>
+        <label for="description">Description:</label><br>
+        <input type="text" id="description" required><br>
+        <label for="content">Content:</label><br>
+        <textarea id="content" rows="6" required></textarea><br>
+        <button type="submit">Create Prompt</button>
+    </form>
+    <div id="createResult"></div>
+
+    <h2>All Prompts</h2>
+    <div id="promptList" class="prompt-list"></div>
+
+    <script>
+    // Helper to fetch and display all prompts
+    function loadPrompts() {
+        fetch('/prompts')
+            .then(res => res.json())
+            .then(data => {
+                const list = document.getElementById('promptList');
+                list.innerHTML = '';
+                if (data.length === 0) {
+                    list.innerHTML = '<em>No prompts found.</em>';
+                    return;
+                }
+                data.forEach(prompt => {
+                    const item = document.createElement('div');
+                    item.className = 'prompt-item';
+                    item.innerHTML = `
+                        <div><strong>ID:</strong> ${prompt.id}</div>
+                        <div><strong>Description:</strong> <span id="desc-${prompt.id}">${prompt.description}</span></div>
+                        <div><strong>Content:</strong><br>
+                            <textarea id="cont-${prompt.id}" readonly rows="6" style="width:100%;resize:vertical;">${prompt.content}</textarea>
+                        </div>
+                        <div class="actions">
+                            <button onclick="showEdit('${prompt.id}')">Edit</button>
+                            <button onclick="deletePrompt('${prompt.id}')">Delete</button>
+                        </div>
+                        <div id="edit-${prompt.id}" style="display:none; margin-top:1em;">
+                            <form onsubmit="submitEdit(event, '${prompt.id}')">
+                                <label>Description:</label><br>
+                                <input type="text" id="edit-description-${prompt.id}" value="${prompt.description}" required><br>
+                                <label>Content:</label><br>
+                                <textarea id="edit-content-${prompt.id}" rows="4" required>${prompt.content}</textarea><br>
+                                <button type="submit">Save</button>
+                                <button type="button" onclick="hideEdit('${prompt.id}')">Cancel</button>
+                            </form>
+                        </div>
+                    `;
+                    list.appendChild(item);
+                });
+            });
+    }
+
+    // Create prompt
+    document.getElementById('createForm').onsubmit = function(e) {
+        e.preventDefault();
+        const id = document.getElementById('id').value;
+        const description = document.getElementById('description').value;
+        const content = document.getElementById('content').value;
+        fetch('/prompts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, description, content })
+        })
+        .then(res => {
+            if (!res.ok) return res.text().then(t => Promise.reject(t));
+            return res.json();
+        })
+        .then(data => {
+            document.getElementById('createResult').innerText = 'Prompt created!';
+            document.getElementById('createForm').reset();
+            loadPrompts();
+        })
+        .catch(err => {
+            document.getElementById('createResult').innerText = 'Error: ' + err;
+        });
+    };
+
+    // Edit prompt UI
+    window.showEdit = function(id) {
+        document.getElementById('edit-' + id).style.display = 'block';
+    };
+    window.hideEdit = function(id) {
+        document.getElementById('edit-' + id).style.display = 'none';
+    };
+    window.submitEdit = function(e, id) {
+        e.preventDefault();
+        const description = document.getElementById('edit-description-' + id).value;
+        const content = document.getElementById('edit-content-' + id).value;
+        fetch('/prompts/' + id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ description, content })
+        })
+        .then(res => {
+            if (!res.ok) return res.text().then(t => Promise.reject(t));
+            return res.json();
+        })
+        .then(data => {
+            document.getElementById('desc-' + id).innerText = data.description;
+            document.getElementById('cont-' + id).innerText = data.content;
+            hideEdit(id);
+        })
+        .catch(err => {
+            alert('Error updating prompt: ' + err);
+        });
+    };
+
+    // Delete prompt
+    window.deletePrompt = function(id) {
+        if (!confirm('Delete this prompt?')) return;
+        fetch('/prompts/' + id, { method: 'DELETE' })
+            .then(res => {
+                if (!res.ok) return res.text().then(t => Promise.reject(t));
+                loadPrompts();
+            })
+            .catch(err => {
+                alert('Error deleting prompt: ' + err);
+            });
+    };
+
+    // Initial load
+    loadPrompts();
+    </script>
+</body>
+</html>

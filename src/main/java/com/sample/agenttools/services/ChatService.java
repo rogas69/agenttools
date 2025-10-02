@@ -2,6 +2,8 @@ package com.sample.agenttools.services;
 
 import com.sample.agenttools.api.model.operation.Message;
 import com.sample.agenttools.config.OpenAiConfig;
+import com.sample.agenttools.langgraph.ChatMemoryState;
+import com.sample.agenttools.langgraph.services.SimpleChatGraph;
 import com.sample.agenttools.services.operation.MessageService;
 import com.sample.agenttools.tools.DateTimeTools;
 import lombok.extern.slf4j.Slf4j;
@@ -29,20 +31,26 @@ public class ChatService {
     private final MessageService messageService;
     private final OpenAiConfig openAiConfig;
     private final ApplicationContext applicationContext;
+    private final SimpleChatGraph simpleChatGraph;
 
     @Autowired
     public ChatService(OpenAiChatModel openAiChatModel,
                        ChatClient.Builder chatClientBuilder,
                        MessageService messageService,
                        OpenAiConfig openAiConfig,
-                       ApplicationContext applicationContext) {
+                       ApplicationContext applicationContext,
+                       SimpleChatGraph simpleChatGraph) {
+        this.simpleChatGraph = simpleChatGraph;
         this.openAiChatModel = openAiChatModel;
         this.chatClientBuilder = chatClientBuilder;
         this.messageService = messageService;
         this.openAiConfig = openAiConfig;
         this.applicationContext = applicationContext;
-        log.info("Created ChatService with model={}", openAiConfig.getChat().getModel());
-        log.debug("Using maxTokens={} for OpenAI completion", openAiConfig.getChat().getOptions().getMaxTokens());
+        log.info("Created ChatService with model={}", openAiConfig.getChat()
+                .getModel());
+        log.debug("Using maxTokens={} for OpenAI completion", openAiConfig.getChat()
+                .getOptions()
+                .getMaxTokens());
     }
 
     private List<org.springframework.ai.chat.messages.Message> toChatHistory(List<Message> history) {
@@ -57,6 +65,23 @@ public class ChatService {
     }
 
 
+    public String chatWithGraph(String conversationId, String userPrompt, List<Message> history) {
+        log.info("Starting chat with graph for conversationId={}, userPrompt='{}'", conversationId, userPrompt);
+        var initialInputs = history.stream()
+                .map(Message::getContent)
+                .collect(Collectors.toList());
+        initialInputs.add(userPrompt);
+
+        log.debug("Initial inputs for graph: {}", initialInputs);
+
+        var inputs =  java.util.Map.of(ChatMemoryState.MESSAGES_KEY, (Object) initialInputs);
+
+        for (var item : simpleChatGraph.stream(inputs)) {
+            log.info( "Output item: {}", item );
+        }
+        return "";
+    }
+
     public String getChatCompletion(String conversationId, String userPrompt, List<Message> history, Boolean callTools) {
         log.info("Generating chat completion for conversationId={}, userPrompt='{}', callTools={}", conversationId, userPrompt, callTools);
         var systemMessage = new org.springframework.ai.chat.messages.SystemMessage(
@@ -70,7 +95,9 @@ public class ChatService {
         chatHistory.add(0, systemMessage);
         log.debug("Chat history size: {}", chatHistory.size());
         chatHistory.add(new UserMessage(userPrompt));
-        int maxTokens = openAiConfig.getChat().getOptions().getMaxTokens();
+        int maxTokens = openAiConfig.getChat()
+                .getOptions()
+                .getMaxTokens();
 
         ToolCallback[] dateTimeTools = ToolCallbacks.from(new DateTimeTools());
 
@@ -84,7 +111,8 @@ public class ChatService {
 
         var chatClient = chatClientBuilder
                 .build();
-        var response = chatClient.prompt(prompt).call();
+        var response = chatClient.prompt(prompt)
+                .call();
         String assistantResponse = response.content();
 
 

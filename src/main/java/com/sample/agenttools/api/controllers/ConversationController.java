@@ -90,6 +90,21 @@ public class ConversationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(assistantResponse);
     }
 
+    @Operation(summary = "Add a user message to a conversation with a graph", description = "Inserts a new user message for the given conversation ID and returns the assistant's response.")
+    @PostMapping("/{conversationid}/chat/messages")
+    public ResponseEntity<String> chatUsingGraph(
+            @PathVariable String conversationid,
+            @RequestBody MessageForInsert messageForInsert,
+            @RequestParam(name = "call-tools", required = false, defaultValue = "true") Boolean callTools) {
+        var history = messageService.getMessagesByConversationId(conversationid);
+        messageService.addUserMessage(conversationid, messageForInsert);
+
+        String assistantResponse = chatService.chatWithGraph(conversationid, messageForInsert.content(), history);
+//        messageService.addAssistantMessage(conversationid, new MessageForInsert(assistantResponse));
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(assistantResponse);
+    }
+
     @Operation(summary = "Clear all messages in a conversation", description = "Removes all messages for the given conversation ID. This resets the chat memory, allowing for easier testing.")
     @PutMapping("/{conversationid}/clear")
     public ResponseEntity<Void> clearConversationMessages(@PathVariable String conversationid) {

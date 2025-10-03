@@ -17,7 +17,10 @@ import java.util.HashMap;
 
 @Configuration
 @EnableJpaRepositories(
-    basePackages = "com.sample.agenttools.data.operation",
+    basePackages = {
+        "com.sample.agenttools.data.operation",
+        "com.sample.agenttools.data.ingestion.repository"
+    },
     entityManagerFactoryRef = "operationEntityManager",
     transactionManagerRef = "operationTransactionManager"
 )
@@ -46,7 +49,10 @@ public class AgentToolsDbConfig {
     public LocalContainerEntityManagerFactoryBean operationEntityManager() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(operationDataSource());
-        em.setPackagesToScan("com.sample.agenttools.api.model.operation");
+        em.setPackagesToScan(
+            "com.sample.agenttools.api.model.operation",
+            "com.sample.agenttools.data.ingestion.model"
+        );
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);

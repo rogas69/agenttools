@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload CVE File</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; }
+        h1 { margin-bottom: 1em; }
+        .upload-area {
+            border: 2px dashed #007bff;
+            border-radius: 8px;
+            padding: 2em;
+            text-align: center;
+            color: #007bff;
+            background: #f8f9fa;
+            cursor: pointer;
+            margin-bottom: 1em;
+            transition: background 0.2s;
+        }
+        .upload-area.dragover {
+            background: #e3f2fd;
+        }
+        #fileInput { display: none; }
+        .status { margin-top: 1em; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Upload CVE File</h1>
+    <div class="upload-area" id="uploadArea">
+        Drag & drop a file here, or <button type="button" onclick="document.getElementById('fileInput').click();">Choose File</button>
+        <input type="file" id="fileInput" />
+    </div>
+    <div class="status" id="status"></div>
+    <script>
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const statusDiv = document.getElementById('status');
+
+    // Drag & drop events
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+    uploadArea.addEventListener('dragleave', function(e) {
+        uploadArea.classList.remove('dragover');
+    });
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) {
+            handleFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    // File picker
+    fileInput.addEventListener('change', function(e) {
+        if (fileInput.files.length > 0) {
+            handleFile(fileInput.files[0]);
+        }
+    });
+
+    function handleFile(file) {
+        statusDiv.textContent = 'Uploading ' + file.name + '...';
+        const formData = new FormData();
+        formData.append('file', file);
+        fetch('/api/data/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.text())
+        .then(msg => {
+            statusDiv.textContent = msg;
+        })
+        .catch(err => {
+            statusDiv.textContent = 'Upload failed: ' + err;
+        });
+    }
+    </script>
+</body>
+</html>
+

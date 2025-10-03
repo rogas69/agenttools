@@ -21,6 +21,14 @@ spring:
       ddl-auto: update
     show-sql: true
     database-platform: org.hibernate.dialect.H2Dialect
+  files:
+    cve:
+      path: ../data/cve
+    policies:
+      path: ../data/policies
+    uploads:
+      path: ${data.uploads.path}
+
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}

@@ -3,151 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Conversation Chat</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #f8f9fa;
-        }
-        .container {
-            display: flex;
-            height: 100vh;
-        }
-        .sidebar {
-            width: 300px;
-            background: #e3f2fd;
-            border-right: 2px solid #007bff;
-            padding: 1em 0.5em;
-            overflow-y: auto;
-        }
-        .sidebar h2 {
-            margin-top: 0;
-            color: #007bff;
-        }
-        .conversation-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .conversation-item {
-            padding: 0.7em 1em;
-            margin-bottom: 0.3em;
-            background: #fff;
-            border-radius: 6px;
-            cursor: pointer;
-            border: 1px solid #007bff;
-            transition: background 0.2s;
-            display: flex;
-            flex-direction: column;
-        }
-        .conversation-item.selected {
-            background: #007bff;
-            color: #fff;
-        }
-        .conversation-topic {
-            font-weight: bold;
-        }
-        .conversation-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 2px;
-        }
-        .conversation-date {
-            font-size: 0.78em;
-            color: #888;
-            margin: 0;
-            padding: 0;
-        }
-        .delete-conv-btn {
-            background: #dc3545;
-            border: none;
-            border-radius: 4px;
-            padding: 0.2em 0.7em;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .conversation-item.selected .conversation-topic {
-            color: #fff;
-        }
-        .conversation-item.selected .conversation-date {
-            color: #e3f2fd;
-        }
-        .conversation-item.selected .delete-conv-btn {
-            background: #0056b3;
-        }
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-        .messages {
-            flex: 1;
-            padding: 1em;
-            overflow-y: auto;
-        }
-        .message {
-            margin-bottom: 1em;
-            padding: 0.7em 1em;
-            border-radius: 6px;
-            background: #fff;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-        }
-        .message.user {
-            border-left: 4px solid #007bff;
-        }
-        .message.assistant {
-            border-left: 4px solid #28a745;
-        }
-        .input-area {
-            padding: 1em;
-            border-top: 2px solid #007bff;
-            background: #f8f9fa;
-            display: flex;
-            align-items: flex-end;
-        }
-        #messageInput {
-            flex: 1;
-            resize: vertical;
-            min-height: 40px;
-            max-height: 120px;
-            border-radius: 6px;
-            border: 1px solid #007bff;
-            padding: 0.7em;
-            font-size: 1em;
-            margin-right: 1em;
-        }
-        #sendBtn {
-            background: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            padding: 0.7em 1.5em;
-            font-size: 1em;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        #sendBtn:hover {
-            background: #0056b3;
-        }
-        .empty {
-            color: #888;
-            text-align: center;
-            margin-top: 2em;
-        }
-        .edit-title-btn svg {
-            vertical-align: middle;
-        }
-        .edit-title-input {
-            border: 1px solid #007bff;
-            border-radius: 4px;
-            padding: 2px 6px;
-        }
-    </style>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" type="image/svg+xml" href="binoculars.svg">
+    <script src="js/marked.umd.js"></script>
+    <script src="js/purify.min.js"></script>
 </head>
 <body>
 <div class="container">
@@ -165,6 +24,13 @@
             <textarea id="messageInput" placeholder="Type your message..." rows="2"></textarea>
             <button type="submit" id="sendBtn">Send</button>
         </form>
+    </div>
+</div>
+<div id="confirmModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.3);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:#fff;padding:2em 2em;border-radius:8px;box-shadow:0 2px 16px rgba(0,0,0,0.2);min-width:300px;max-width:90vw;text-align:center;">
+        <div id="confirmModalMsg" style="margin-bottom:1.5em;font-size:1.1em;"></div>
+        <button id="confirmModalOk" style="background:#007bff;color:#fff;border:none;border-radius:4px;padding:0.5em 1.5em;margin-right:1em;cursor:pointer;">OK</button>
+        <button id="confirmModalCancel" style="background:#888;color:#fff;border:none;border-radius:4px;padding:0.5em 1.5em;cursor:pointer;">Cancel</button>
     </div>
 </div>
 <script>
@@ -303,17 +169,11 @@ function fetchMessages(conversationId) {
             data.forEach(msg => {
                 const div = document.createElement('div');
                 div.className = 'message ' + (msg.role === 'user' ? 'user' : 'assistant');
-                div.innerHTML = `<strong>${msg.role === 'user' ? 'You' : 'Assistant'}:</strong><br>${escapeHtml(msg.content)}`;
+                div.innerHTML = `<strong>${msg.role === 'user' ? 'You' : 'Assistant'}:</strong><br>` + DOMPurify.sanitize(marked.parse(msg.content));
                 messagesDiv.appendChild(div);
             });
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         });
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
 }
 
 // Send message
@@ -338,7 +198,7 @@ function sendMessage() {
     const messagesDiv = document.getElementById('messages');
     const userDiv = document.createElement('div');
     userDiv.className = 'message user';
-    userDiv.innerHTML = `<strong>You:</strong><br>${escapeHtml(content)}`;
+    userDiv.innerHTML = `<strong>You:</strong><br>` + DOMPurify.sanitize(marked.parse(content));
     messagesDiv.appendChild(userDiv);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
     // Show assistant indicator
@@ -381,31 +241,32 @@ document.getElementById('newConvBtn').onclick = function() {
 
 document.getElementById('clearConvBtn').onclick = function() {
     if (!selectedConversationId) return;
-    if (!confirm('Clear all messages in this conversation?')) return;
-    fetch(`/conversation/${selectedConversationId}/clear`, {
-        method: 'PUT'
-    })
-    .then(res => {
-        if (res.ok) {
-            fetchMessages(selectedConversationId);
-            document.getElementById('messages').innerHTML = '<div class="empty">No messages yet.</div>';
-        }
+    showConfirmModal('Clear all messages in this conversation?', function() {
+        fetch(`/conversation/${selectedConversationId}/clear`, {
+            method: 'PUT'
+        })
+        .then(res => {
+            if (res.ok) {
+                fetchMessages(selectedConversationId);
+                document.getElementById('messages').innerHTML = '<div class="empty">No messages yet.</div>';
+            }
+        });
     });
 };
-
 function deleteConversation(conversationId) {
-    fetch(`/conversation/${conversationId}`, {
-        method: 'DELETE'
-    })
-    .then(res => {
-        if (res.ok) {
-            // If deleted conversation was selected, clear main pane
-            if (selectedConversationId === conversationId) {
-                selectedConversationId = null;
-                document.getElementById('messages').innerHTML = '';
+    showConfirmModal('Delete this conversation?', function() {
+        fetch(`/conversation/${conversationId}`, {
+            method: 'DELETE'
+        })
+        .then(res => {
+            if (res.ok) {
+                if (selectedConversationId === conversationId) {
+                    selectedConversationId = null;
+                    document.getElementById('messages').innerHTML = '';
+                }
+                fetchConversations();
             }
-            fetchConversations();
-        }
+        });
     });
 }
 
@@ -414,6 +275,37 @@ fetchConversations();
 
 // Refresh conversations every 30s (optional)
 setInterval(fetchConversations, 30000);
+
+function showConfirmModal(message, onConfirm) {
+    const modal = document.getElementById('confirmModal');
+    const msg = document.getElementById('confirmModalMsg');
+    const okBtn = document.getElementById('confirmModalOk');
+    const cancelBtn = document.getElementById('confirmModalCancel');
+    msg.textContent = message;
+    modal.style.display = 'flex';
+    okBtn.focus();
+    function cleanup() {
+        modal.style.display = 'none';
+        okBtn.onclick = null;
+        cancelBtn.onclick = null;
+        document.onkeydown = null;
+    }
+    okBtn.onclick = function() {
+        cleanup();
+        onConfirm();
+    };
+    cancelBtn.onclick = function() {
+        cleanup();
+    };
+    document.onkeydown = function(e) {
+        if (e.key === 'Escape') {
+            cleanup();
+        } else if (e.key === 'Enter') {
+            cleanup();
+            onConfirm();
+        }
+    };
+}
 </script>
 </body>
 </html>

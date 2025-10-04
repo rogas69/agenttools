@@ -1,0 +1,165 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f8f9fa;
+}
+.container {
+    display: flex;
+    height: 100vh;
+}
+.sidebar {
+    width: 300px;
+    background: #e3f2fd;
+    border-right: 2px solid #007bff;
+    padding: 1em 0.5em;
+    overflow-y: auto;
+}
+.sidebar h2 {
+    margin-top: 0;
+    color: #007bff;
+}
+.conversation-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.conversation-item {
+    padding: 0.7em 1em;
+    margin-bottom: 0.3em;
+    background: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid #007bff;
+    transition: background 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+.conversation-item.selected {
+    background: #007bff;
+    color: #fff;
+}
+.conversation-topic {
+    font-weight: bold;
+}
+.conversation-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2px;
+}
+.conversation-date {
+    font-size: 0.78em;
+    color: #888;
+    margin: 0;
+    padding: 0;
+}
+.delete-conv-btn {
+    background: #dc3545;
+    border: none;
+    border-radius: 4px;
+    padding: 0.2em 0.7em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.conversation-item.selected .conversation-topic {
+    color: #fff;
+}
+.conversation-item.selected .conversation-date {
+    color: #e3f2fd;
+}
+.conversation-item.selected .delete-conv-btn {
+    background: #0056b3;
+}
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+.messages {
+    flex: 1;
+    padding: 1em;
+    overflow-y: auto;
+}
+.message {
+    margin-bottom: 1em;
+    padding: 0.7em 1em;
+    border-radius: 6px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.message.user {
+    border-left: 4px solid #007bff;
+}
+.message.assistant {
+    border-left: 4px solid #28a745;
+}
+.input-area {
+    padding: 1em;
+    border-top: 2px solid #007bff;
+    background: #f8f9fa;
+    display: flex;
+    align-items: flex-end;
+}
+#messageInput {
+    flex: 1;
+    resize: vertical;
+    min-height: 40px;
+    max-height: 120px;
+    border-radius: 6px;
+    border: 1px solid #007bff;
+    padding: 0.7em;
+    font-size: 1em;
+    margin-right: 1em;
+}
+#sendBtn {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.7em 1.5em;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+#sendBtn:hover {
+    background: #0056b3;
+}
+.empty {
+    color: #888;
+    text-align: center;
+    margin-top: 2em;
+}
+.edit-title-btn svg {
+    vertical-align: middle;
+}
+.edit-title-input {
+    border: 1px solid #007bff;
+    border-radius: 4px;
+    padding: 2px 6px;
+}
+#confirmModal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+#confirmModal > div {
+    background: #fff;
+    padding: 2em 2em;
+    border-radius: 8px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+    min-width: 300px;
+    max-width: 90vw;
+    text-align: center;
+}
+

@@ -112,4 +112,11 @@ public class ConversationController {
         messageService.deleteMessagesByConversationId(conversationid);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "Delete a conversation", description = "Deletes a conversation by its unique identifier.")
+    @DeleteMapping("/{conversationid}")
+    public ResponseEntity<Void> deleteConversation(@PathVariable String conversationid) {
+        conversationService.deleteConversationById(conversationid);
+        return ResponseEntity.noContent().build();
+    }
 }

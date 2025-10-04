@@ -32,4 +32,9 @@ public class ConversationService {
     public void updateConversation(Conversation conversation) {
         conversationRepository.save(conversation);
     }
+
+    public boolean deleteConversationById(String id) {
+        conversationRepository.deleteById(id);
+        return true;
+    }
 }

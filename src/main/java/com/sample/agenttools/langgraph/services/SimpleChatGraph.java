@@ -1,6 +1,6 @@
 package com.sample.agenttools.langgraph.services;
 
-import com.sample.agenttools.langgraph.ChatMemoryState;
+import com.sample.agenttools.langgraph.MainGraphState;
 import lombok.extern.slf4j.Slf4j;
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.*;
@@ -24,7 +24,7 @@ public class SimpleChatGraph {
     private final GreeterNode greeterNode;
     private final ResponderNode responderNode;
 
-    private CompiledGraph<ChatMemoryState> compiledGraph;
+    private CompiledGraph<MainGraphState> compiledGraph;
 
     @Autowired
     public SimpleChatGraph(
@@ -36,14 +36,14 @@ public class SimpleChatGraph {
 
         configureGraph();
 
-        this.compiledGraph.stream( Map.of( ChatMemoryState.MESSAGES_KEY, "Let's, begin!" ));
+        this.compiledGraph.stream( Map.of( MainGraphState.CHAT_HISTORY, "Let's, begin!" ));
 
         log.info("SimpleChatGraph initialized");
     }
 
     private void configureGraph(){
         try {
-            var stateGraph = new StateGraph<>(ChatMemoryState.SCHEMA, initData -> new ChatMemoryState(initData))
+            var stateGraph = new StateGraph<>(MainGraphState.SCHEMA, initData -> new MainGraphState(initData))
                     .addNode("greeter", node_async(greeterNode))
                     .addNode("responder", node_async(responderNode))
                     // Define edges
@@ -60,7 +60,7 @@ public class SimpleChatGraph {
         }
     }
 
-    public AsyncGenerator<NodeOutput<ChatMemoryState>> stream(Map<String, Object> inputs) {
+    public AsyncGenerator<NodeOutput<MainGraphState>> stream(Map<String, Object> inputs) {
         return this.compiledGraph.stream(inputs);
     }
 }

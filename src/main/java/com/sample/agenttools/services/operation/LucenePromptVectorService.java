@@ -5,7 +5,6 @@ import org.apache.lucene.document.*;
 import org.apache.lucene.index.*;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.BytesRef;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -33,7 +32,7 @@ public class LucenePromptVectorService {
             doc.add(new StringField(FIELD_ID, id, Field.Store.YES));
             doc.add(new TextField(FIELD_DESCRIPTION, description, Field.Store.YES));
             doc.add(new TextField(FIELD_CONTENT, content, Field.Store.YES));
-            doc.add(new KnnVectorField(FIELD_VECTOR, embedding));
+            doc.add(new KnnFloatVectorField(FIELD_VECTOR, embedding));
             writer.updateDocument(new Term(FIELD_ID, id), doc);
         }
     }
@@ -41,11 +40,12 @@ public class LucenePromptVectorService {
     public List<Document> searchSimilarPrompts(float[] queryEmbedding, int k) throws IOException {
         try (DirectoryReader reader = DirectoryReader.open(directory)) {
             IndexSearcher searcher = new IndexSearcher(reader);
-            KnnVectorQuery query = new KnnVectorQuery(FIELD_VECTOR, queryEmbedding, k);
+            var query = new KnnFloatVectorQuery(FIELD_VECTOR, queryEmbedding, k);
             TopDocs topDocs = searcher.search(query, k);
             List<Document> results = new ArrayList<>();
+            StoredFields storedFields = searcher.storedFields();
             for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
-                results.add(searcher.doc(scoreDoc.doc));
+                results.add(storedFields.document(scoreDoc.doc));
             }
             return results;
         }

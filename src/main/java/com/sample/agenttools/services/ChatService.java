@@ -2,7 +2,7 @@ package com.sample.agenttools.services;
 
 import com.sample.agenttools.api.model.operation.Message;
 import com.sample.agenttools.config.OpenAiConfig;
-import com.sample.agenttools.langgraph.ChatMemoryState;
+import com.sample.agenttools.langgraph.MainGraphState;
 import com.sample.agenttools.langgraph.services.SimpleChatGraph;
 import com.sample.agenttools.services.operation.MessageService;
 import com.sample.agenttools.tools.DateTimeTools;
@@ -74,7 +74,7 @@ public class ChatService {
 
         log.debug("Initial inputs for graph: {}", initialInputs);
 
-        var inputs =  java.util.Map.of(ChatMemoryState.MESSAGES_KEY, (Object) initialInputs);
+        var inputs =  java.util.Map.of(MainGraphState.CHAT_HISTORY, (Object) initialInputs);
 
         for (var item : simpleChatGraph.stream(inputs)) {
             log.info( "Output item: {}", item );

@@ -1,8 +1,40 @@
 body {
-    font-family: Arial, sans-serif;
     margin: 0;
-    padding: 0;
+    font-family: Arial, sans-serif;
     background: #f8f9fa;
+}
+.navbar {
+    display: flex;
+    align-items: center;
+    background: #007bff;
+    color: #fff;
+    padding: 0.5em 2em;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border-bottom: 4px solid red; /* TEST: Add a red border to confirm CSS is applied */
+}
+.navbar .logo {
+    font-weight: bold;
+    font-size: 1.3em;
+    margin-right: 2em;
+    letter-spacing: 1px;
+}
+.navbar .menu {
+    display: flex;
+    gap: 1em;
+}
+.navbar .menu button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1em;
+    padding: 0.5em 1em;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+.navbar .menu button.active,
+.navbar .menu button:hover {
+    background: #0056b3;
 }
 .container {
     display: flex;
@@ -44,34 +76,30 @@ body {
 }
 .conversation-meta {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-top: 2px;
+    justify-content: space-between;
+    margin-top: 4px;
 }
 .conversation-date {
-    font-size: 0.78em;
+    font-size: 0.85em;
     color: #888;
-    margin: 0;
-    padding: 0;
+    margin-right: 8px;
 }
 .delete-conv-btn {
     background: #dc3545;
     border: none;
-    border-radius: 4px;
-    padding: 0.2em 0.7em;
+    border-radius: 3px;
+    padding: 2px 6px;
     cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content: center;
+    transition: background 0.2s;
 }
-.conversation-item.selected .conversation-topic {
-    color: #fff;
+.delete-conv-btn:hover {
+    background: #b71c1c;
 }
-.conversation-item.selected .conversation-date {
-    color: #e3f2fd;
-}
-.conversation-item.selected .delete-conv-btn {
-    background: #0056b3;
+.delete-conv-btn svg {
+    vertical-align: middle;
 }
 .main {
     flex: 1;
@@ -162,4 +190,96 @@ body {
     max-width: 90vw;
     text-align: center;
 }
+.spa-mode .container {
+    height: calc(100vh - 56px); /* Adjust for navbar height */
+}
+.spa-mode .main {
+    height: calc(100vh - 56px);
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+#loader {
+    text-align: center;
+    margin-top: 4em;
+    font-size: 1.2em;
+    color: #007bff;
+}
 
+.prompt-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+
+.prompt-editor {
+    max-width: 700px;
+    min-width: 350px;
+    width: 100%;
+    margin: 2em auto 0 auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    padding: 2em 2em 2em 2em;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+.prompt-editor h2 {
+    margin-top: 0;
+    color: #007bff;
+}
+.prompt-editor label {
+    font-weight: bold;
+    margin-top: 1em;
+}
+.prompt-editor input[type="text"],
+.prompt-editor textarea {
+    width: 100%;
+    margin-bottom: 1em;
+    border: 1px solid #007bff;
+    border-radius: 4px;
+    padding: 0.5em;
+    background: #f8f9fa;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+.prompt-editor textarea:focus,
+.prompt-editor input[type="text"]:focus {
+    outline: none;
+    border-color: #0056b3;
+    background: #e3f2fd;
+}
+.prompt-editor button {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5em 1em;
+    cursor: pointer;
+    font-size: 1em;
+    margin-right: 0.5em;
+    margin-bottom: 0.5em;
+    transition: background 0.2s;
+}
+.prompt-editor button:hover {
+    background: #0056b3;
+}
+.prompt-item {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.7em 1em;
+    margin-bottom: 0.3em;
+    background: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid #007bff;
+    transition: background 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+.prompt-item.selected {
+    background: #007bff;
+    color: #fff;
+}

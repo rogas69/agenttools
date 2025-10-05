@@ -36,12 +36,14 @@ public class ConversationController {
     @Operation(summary = "Get all conversations", description = "Returns a list of all conversations.")
     @GetMapping
     public List<Conversation> getConversations() {
+        log.info("Fetching all conversations");
         return conversationService.getAllConversations();
     }
 
     @Operation(summary = "Get conversation by ID", description = "Returns a conversation by its unique identifier.")
     @GetMapping("/{conversationid}")
     public ResponseEntity<Conversation> getConversationById(@PathVariable String conversationid) {
+        log.info("Fetching conversation with ID: {}", conversationid);
         return conversationService.getConversationById(conversationid)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -51,6 +53,7 @@ public class ConversationController {
     @PostMapping
     public ResponseEntity<Conversation> addConversation(@RequestBody ConversationForInsert conversationForInsert) {
         String topic = (conversationForInsert != null && conversationForInsert.topic() != null) ? conversationForInsert.topic() : "Default Conversation";
+        log.info("Creating new conversation with topic: {}", topic);
         Conversation conversation = Conversation.create(topic);
         conversationService.addConversation(conversation);
         return new ResponseEntity<>(conversation, HttpStatus.CREATED);
@@ -58,7 +61,10 @@ public class ConversationController {
 
     @Operation(summary = "Update conversation title", description = "Updates the title of an existing conversation.")
     @PutMapping("/{conversationid}")
-    public ResponseEntity<Conversation> updateConversation(@PathVariable String conversationid, @RequestBody ConversationForUpdate update) {
+    public ResponseEntity<Conversation> updateConversation(
+            @PathVariable String conversationid,
+            @RequestBody ConversationForUpdate update) {
+        log.info("Updating conversation ID: {} with new title: {}", conversationid, update.title());
         return conversationService.getConversationById(conversationid)
                 .map(existing -> {
                     Conversation updated = new Conversation(conversationid, update.title(), existing.getDateCreated());
@@ -71,6 +77,7 @@ public class ConversationController {
     @Operation(summary = "Get messages for a conversation", description = "Returns all messages for a given conversation ID.")
     @GetMapping("/{conversationid}/messages")
     public ResponseEntity<List<com.sample.agenttools.api.model.operation.Message>> getMessagesForConversation(@PathVariable String conversationid) {
+        log.info("Fetching messages for conversation ID: {}", conversationid);
         var messages = messageService.getMessagesByConversationId(conversationid);
         return ResponseEntity.ok(messages);
     }
@@ -81,6 +88,7 @@ public class ConversationController {
             @PathVariable String conversationid,
             @RequestBody MessageForInsert messageForInsert,
             @RequestParam(name = "call-tools", required = false, defaultValue = "true") Boolean callTools) {
+        log.info("Adding user message to conversation ID: {}", conversationid);
         var history = messageService.getMessagesByConversationId(conversationid);
         messageService.addUserMessage(conversationid, messageForInsert);
 
@@ -96,6 +104,7 @@ public class ConversationController {
             @PathVariable String conversationid,
             @RequestBody MessageForInsert messageForInsert,
             @RequestParam(name = "call-tools", required = false, defaultValue = "true") Boolean callTools) {
+        log.info("Adding user message to conversation ID: {}", conversationid);
         var history = messageService.getMessagesByConversationId(conversationid);
         messageService.addUserMessage(conversationid, messageForInsert);
 
@@ -116,6 +125,7 @@ public class ConversationController {
     @Operation(summary = "Delete a conversation", description = "Deletes a conversation by its unique identifier.")
     @DeleteMapping("/{conversationid}")
     public ResponseEntity<Void> deleteConversation(@PathVariable String conversationid) {
+        log.warn("Deleting conversation with ID: {}", conversationid);
         conversationService.deleteConversationById(conversationid);
         return ResponseEntity.noContent().build();
     }

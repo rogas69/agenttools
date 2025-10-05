@@ -13,6 +13,11 @@ spring:
       errors:
         path: ${data.path}/errors
 
+  #provides a way to specify default prompt for a given agent node
+  graph-nodes:
+    TimeBasedQuestionNode:
+      prompt-id: time-based-template
+
   datasource:
     url: jdbc:h2:file:${database.path}/agenttoolsdb;DB_CLOSE_ON_EXIT=TRUE;AUTO_SERVER=TRUE
     driver-class-name: org.h2.Driver
